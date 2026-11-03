@@ -1,0 +1,34 @@
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Data, indexes, models
+data/raw/
+data/index/
+*.parquet
+*.npy
+*.faiss
+chroma/
+qdrant_storage/
+*.gguf
+*.safetensors
+*.bin
+
+# MLflow
+mlruns/
+mlflow.db
+mlartifacts/
+
+# Secrets
+.env
+*.json.key
+gcp-*.json
+*.token
+
+# macOS / editors
+.DS_Store
+.vscode/
