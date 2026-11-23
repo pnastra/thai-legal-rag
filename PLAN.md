@@ -8,7 +8,21 @@ A 2.5-week portfolio project for a **GenAI beginner**: build a **retrieval-augme
 
 **I am new to GenAI.** This plan goes slower at the start, builds concepts by hand before using frameworks, and explains every new idea before using it (see "Learning mode").
 
-**Timebox:** about 46 hours over 2.5 weeks (start 17 Oct 2026, ship 5 Nov 2026; confirmed in M0). Week 1 = learn + retrieval, week 2 = generation + evaluation, last half-week = ship. No new scope after M8.
+**Timebox (revised 23 Nov 2026):** M0 done; ~39 h left at **max 4 h/day** → work 23 Nov–2 Dec, buffer 3–4 Dec, **ship Fri 4 Dec 2026**. No new scope after M8. (Original: 46 h, 17 Oct–5 Nov.)
+
+| Day | Milestone | Checkpoint |
+|---|---|---|
+| Mon 23 Nov | M1; start M2 | |
+| Tue 24 | M2; start M3 | |
+| Wed 25 | M3 | |
+| Thu 26 | M4 | **CP1:** dev retrieval table done, else M5 → one config |
+| Fri 27 | M5 | |
+| Sat 28 | M6 | |
+| Sun 29 | M7 | **CP2:** test table done, else M10 → CI only, hand-check → 20, Cloud Run → v2 if needed |
+| Mon 30 | M8 | |
+| Tue 1 Dec | M9; start M10 | |
+| Wed 2 | M10, M11 | |
+| Thu 3–Fri 4 | Buffer → ship | Never cut: the M7 test run |
 
 ---
 
@@ -348,6 +362,7 @@ gcp-*.json
 | 2026-11-03 | M0 | Local model: `scb10x/llama3.1-typhoon2-8b-instruct` (official SCB 10X Ollama build, 4.9 GB) | Typhoon2.1-Gemma3-4B/12B, Typhoon2.5-Qwen3-4B, Qwen fallback | Matches the ~8B / ≤5 GB decision; no fallback needed |
 | 2026-11-03 | M0 | Gemini model: `gemini-3.5-flash` (set via `GEMINI_MODEL`) | gemini-3.8-flash, gemini-2.5-flash | 3.8-flash is listed as free tier but timed out (>60 s) on generate; 3.5-flash answers in ~2.5 s |
 | 2026-11-03 | M0 | Gemini key lives in its own Google project without billing, not in `fruit-ripeness-hsi` | Key in the billed fruit project | Billing-enabled project = paid tier; separate project keeps it free |
+| 2026-11-23 | M1 | New dates: work 23 Nov–2 Dec at max 4 h/day, ship 4 Dec; cuts pre-agreed at CP1 (26 Nov) and CP2 (29 Nov) | Full plan by 30 Nov at ~5.5 h/day; lean v1 by 30 Nov + v2 in Dec; thin end-to-end | Hours capped at 4/day; keep full scope incl. evaluation, accept a later date; pre-agreed cuts protect the M7 test run |
 
 ---
 
