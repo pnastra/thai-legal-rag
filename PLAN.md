@@ -8,21 +8,21 @@ A 2.5-week portfolio project for a **GenAI beginner**: build a **retrieval-augme
 
 **I am new to GenAI.** This plan goes slower at the start, builds concepts by hand before using frameworks, and explains every new idea before using it (see "Learning mode").
 
-**Timebox (revised 23 Nov 2026):** M0 done; ~39 h left at **max 4 h/day** → work 23 Nov–2 Dec, buffer 3–4 Dec, **ship Fri 4 Dec 2026**. No new scope after M8. (Original: 46 h, 17 Oct–5 Nov.)
+**Timebox (revised 23 Nov 2026):** M0 done; ~39 h left at **max 4 h/day** → work 24 Nov–3 Dec (start slipped one day), buffer Fri 4 Dec, **ship Fri 4 Dec 2026**. No new scope after M8. (Original: 46 h, 17 Oct–5 Nov.)
 
 | Day | Milestone | Checkpoint |
 |---|---|---|
-| Mon 23 Nov | M1; start M2 | |
-| Tue 24 | M2; start M3 | |
-| Wed 25 | M3 | |
-| Thu 26 | M4 | **CP1:** dev retrieval table done, else M5 → one config |
-| Fri 27 | M5 | |
-| Sat 28 | M6 | |
-| Sun 29 | M7 | **CP2:** test table done, else M10 → CI only, hand-check → 20, Cloud Run → v2 if needed |
-| Mon 30 | M8 | |
-| Tue 1 Dec | M9; start M10 | |
-| Wed 2 | M10, M11 | |
-| Thu 3–Fri 4 | Buffer → ship | Never cut: the M7 test run |
+| Tue 24 Nov | M1; start M2 | |
+| Wed 25 | M2; start M3 | |
+| Thu 26 | M3 | |
+| Fri 27 | M4 | **CP1:** dev retrieval table done, else M5 → one config |
+| Sat 28 | M5 | |
+| Sun 29 | M6 | |
+| Mon 30 | M7 | **CP2:** test table done, else M10 → CI only, hand-check → 20, Cloud Run → v2 if needed |
+| Tue 1 Dec | M8 | |
+| Wed 2 | M9; start M10 | |
+| Thu 3 | M10, M11 | |
+| Fri 4 | Buffer → ship | Never cut: the M7 test run |
 
 ---
 
@@ -58,7 +58,7 @@ Embeddings and vector search, BM25 and Thai tokenisation, rerankers, prompting f
 | GitHub account (github.com/pnastra) | ✅ |
 | Mac RAM (decides which local LLM size fits) | ✅ M1 Pro, 16 GB → 7–9B at 4-bit |
 | **Ollama** for local LLMs | ✅ 0.40.5 via `/opt/homebrew` (native arm64), runs as a brew service; Typhoon2-8B 100 % GPU |
-| Hosted LLM API key for the deployed demo (Gemini, free tier) | ✅ in `.env`; key in a separate Google project **without billing** (stays free tier) |
+| Hosted LLM API key for the deployed demo (Gemini, free tier) | ⚠️ in `.env`; intended to sit in a Google project **without billing**, but a key in a billed project still exists: confirm which one is in `.env` before any large run |
 | Hosted LLM API key for the judge (Anthropic, Claude Haiku 5.5, budget $3–5) | ⬜ M0 (needed by M7) |
 | Google Cloud project with **$1 budget alert** | ✅ from fruit project (reuse) |
 | Kaggle/Colab GPU | Only if embedding the corpus on CPU/MPS is too slow (M3) |
@@ -89,16 +89,16 @@ Embeddings and vector search, BM25 and Thai tokenisation, rerankers, prompting f
 - **NitiBench** (Hugging Face: `VISAI-AI/nitibench`; code: github.com/vistec-ai/nitibench), paper: *NitiBench: A Comprehensive Study of LLM Framework Capabilities for Thai Legal Question Answering* (arXiv 2502.10868).
   - **NitiBench-CCL:** 3,730 test questions (the WangchanX test set).
   - **NitiBench-Tax:** 50 real Revenue Department tax cases, multi-section, much harder. Stretch only.
-  - **License:** not stated in the paper; check the dataset card in M1 and record it in the README.
+  - **License (checked M1):** Hugging Face dataset is MIT; the GitHub repo (source of the law files) has no license, so its files are downloaded, never redistributed.
   - Paper reference points to compare against: the best retriever (human-fine-tuned BGE-M3) reached **MRR@5 ≈ 0.80** on CCL; section-based chunking beat naive line chunking; RAG beat putting all laws into a long-context LLM. **Use these as context for my results, not as a target to chase.**
 
 ### 4.2 Corpus
-- The law sections the questions refer to. Confirm in M1 whether the NitiBench repo/dataset ships the full corpus (all sections of the 35 laws) or only the contexts inside the QA rows. If only the latter, build the corpus as the de-duplicated union of all `positive_contexts` + `hard_negative_contexts` and note this limitation in the README.
+- **Confirmed in M1:** the NitiBench GitHub repo ships whole laws: 36 files (the dataset card says 35 laws), **5,127 sections**, one row per section. Every benchmark label joins to it by section ID. Not checked against the official gazette.
 
 ### 4.3 Splits (decided in M1 🧠)
-- **dev:** a fixed random sample from the WangchanX **train** split (e.g. 300 questions) for all tuning.
-- **test:** a fixed random sample from the **test** split (e.g. 500 questions) used **once** for final numbers in M7.
-- Fixed seeds; save question IDs to `data/splits/` (small, committed).
+- **dev (500; 50 for LLM answers):** from WangchanX **train**, filtered to look like test: exactly one label, no duplicates, no near-copy of a test question, no section used by our test sample; law mix matched to test.
+- **test (1,000; 300 for LLM answers):** from the official **test** split, law mix in proportion, used **once** for final numbers in M7.
+- Seed 42; built by `make splits`; saved in `data/splits/{dev,test}.csv` (committed). Details in §12.
 
 ### 4.4 Disclaimer
 - This is legal *information retrieval*, not legal advice. The README and API responses must say so.
@@ -132,6 +132,7 @@ thai-legal-rag/
 │   └── 02_embeddings_by_hand.ipynb
 ├── src/thairag/
 │   ├── data.py             # load benchmark + build corpus
+│   ├── splits.py           # choose the fixed dev/test questions
 │   ├── chunk.py            # chunking strategies
 │   ├── tokenize_th.py      # Thai word tokenisation for BM25
 │   ├── retrieve.py         # BM25, dense (BGE-M3), hybrid
@@ -163,10 +164,10 @@ Twelve milestones (M0–M11): about 18 h in week 1, 18 h in week 2, 10 h in the 
 **Done when:** both LLMs answer from the notebook, the API key lives only in `.env`, the first commit is pushed, and the glossary has its first 6–8 terms.
 
 #### M1 — Data and evaluation splits (≈2.5 h) 🧠
-- [ ] `data.py`: load the WangchanX dataset; check the NitiBench repo/dataset for the full corpus and license; record both in §13
-- [ ] `notebooks/01_explore.ipynb`: questions per law, question and section lengths (in characters and tokens), 5 example rows read together with me
-- [ ] **🧠 Brainstorm — evaluation design:** dev/test sizes (cost vs statistical precision), whether to stratify by law, what to do if the corpus is incomplete, which metrics will be the headline numbers
-- [ ] Save fixed dev/test question IDs to `data/splits/`
+- [x] `data.py`: load the WangchanX dataset; check the NitiBench repo/dataset for the full corpus and license; record both in §13
+- [x] `notebooks/01_explore.ipynb`: questions per law, question and section lengths (in characters and tokens), 5 example rows read together with me
+- [x] **🧠 Brainstorm — evaluation design:** dev/test sizes (cost vs statistical precision), whether to stratify by law, what to do if the corpus is incomplete, which metrics will be the headline numbers
+- [x] Save fixed dev/test question IDs to `data/splits/`
 
 **Done when:** the corpus size, license status and splits are recorded, and a test checks that no question ID is in both dev and test.
 
@@ -363,6 +364,12 @@ gcp-*.json
 | 2026-11-03 | M0 | Gemini model: `gemini-3.5-flash` (set via `GEMINI_MODEL`) | gemini-3.8-flash, gemini-2.5-flash | 3.8-flash is listed as free tier but timed out (>60 s) on generate; 3.5-flash answers in ~2.5 s |
 | 2026-11-03 | M0 | Gemini key lives in its own Google project without billing, not in `fruit-ripeness-hsi` | Key in the billed fruit project | Billing-enabled project = paid tier; separate project keeps it free |
 | 2026-11-23 | M1 | New dates: work 23 Nov–2 Dec at max 4 h/day, ship 4 Dec; cuts pre-agreed at CP1 (26 Nov) and CP2 (29 Nov) | Full plan by 30 Nov at ~5.5 h/day; lean v1 by 30 Nov + v2 in Dec; thin end-to-end | Hours capped at 4/day; keep full scope incl. evaluation, accept a later date; pre-agreed cuts protect the M7 test run |
+| 2026-11-24 | M1 | Dev source: WangchanX train, filtered to look like test and law-matched | Random train; filtered train; first 837 train rows; carve dev out of test | User's choice: the official test split is never touched during tuning. Known limit: most train labels were picked from BGE-M3's own search results, which may favour BGE-M3 over BM25 on dev; report dev results for the 112 test-like rows (first 837 of train) separately |
+| 2026-11-24 | M1 | Sizes: 500 dev / 1,000 test for retrieval; nested 50 dev / 300 test for LLM answers | 300/500 as first planned; all 3,726 eligible test rows | Retrieval is free to run; LLM calls are not. 95% margin near 80%: ±3.5 pts (500), ±2.5 (1,000), ±4.5 (300) |
+| 2026-11-24 | M1 | Stratify by law in test proportions; report Civil and Commercial Code (43%) vs the rest | No strata; equal per law | Dev should predict test; the smallest laws have too few questions to report alone |
+| 2026-11-24 | M1 | Search the full corpus (36 laws, 5,127 sections) | Only the 21 laws with test questions | Leaving laws out would make retrieval artificially easy |
+| 2026-11-24 | M1 | Headline metrics: hit@5 and MRR@10 (plus MRR@5 to compare with the paper); citation precision/recall and coverage for answers | More k values, judge-only scoring | One correct section per question; citations are exact and need no judge |
+| 2026-11-24 | M1 | Test exclusions: 11 rows not in NitiBench-CCL, 4 more copies of repeated questions, and row 0 (seen while exploring) → 3,726 eligible; dev and test share no section | Keep one copy of each repeat | Some repeats have different correct sections, so their label is ambiguous |
 
 ---
 
@@ -372,6 +379,8 @@ Claude Code adds 2–4 lines at the end of every session: date, milestone, what 
 
 | Date | Milestone | Notes |
 |---|---|---|
-| 2026-11-03 | M0 | Scaffolded repo (uv, Py 3.12, src/thairag, Makefile, tests, .env loader); installed Ollama natively (Intel Homebrew in /usr/local compiled from source → switched to /opt/homebrew); pulled Typhoon2-8B; Gemini key in .env (first key was pasted in chat → rotated). `00_hello_llm.ipynb` runs both LLMs: Thai ~1.5× tokens vs English, both models hallucinate a non-existent CCC section. Glossary: 10 terms. |
+| 2026-11-03 | M0 | Scaffolded repo (uv, Py 3.12, src/thairag, Makefile, tests, .env loader); installed Ollama natively (Intel Homebrew in /usr/local compiled from source → switched to /opt/homebrew); pulled Typhoon2-8B; Gemini key in .env (first key was pasted in chat → rotated). `00_hello_llm.ipynb` runs both LLMs: Thai 14 vs English 12 tokens for one sentence (corrected 24 Nov, first logged as ~1.5×), both models hallucinate a non-existent CCC section. Glossary: 10 terms. |
 | 2026-11-03 | M0 | Note: M0 spanned sessions 16 Oct → 3 Nov; ship date 5 Nov is no longer realistic — new dates to be agreed before M1. Next: M1 (data + evaluation splits, 🧠). |
-| 2026-11-23 | — | Re-planned: max 4 h/day, ship Fri 4 Dec (schedule under Timebox, decision in §12). M1 start moved to Tue 24 Nov → every slot shifts +1 day (CP1 Fri 27, CP2 Mon 30), 1 buffer day left (Thu 3 Dec). Next: M1 — load WangchanX, check NitiBench corpus + license, 🧠 evaluation design. |
+| 2026-11-23 | — | Re-planned: max 4 h/day, ship Fri 4 Dec (schedule under Timebox, decision in §12). M1 start moved to Tue 24 Nov → every slot shifts +1 day (CP1 Fri 27, CP2 Mon 30), 1 buffer day left (Fri 4 Dec). Next: M1 — load WangchanX, check NitiBench corpus + license, 🧠 evaluation design. |
+| 2026-11-24 | M1 | `data.py` (pinned versions), `01_explore.ipynb`, `splits.py`. **Corpus:** 36 laws, 5,127 sections, all 39,334 labels join by ID (the dataset's own `unique_key` would have missed 4% of test labels). **License:** both HF datasets MIT; NitiBench GitHub repo unlicensed → not redistributed. **Splits:** dev 500 (50 LLM), test 1,000 (300 LLM), 21 laws, no shared question or section (tested). |
+| 2026-11-24 | M1 | Findings: median section 90 tokens, max 1,685; train has 72 rows without labels and 29% with several. Banking, Energy, Petroleum and Energy Conservation dev questions exist only in train's first 837 rows. Corrected three M0 claims (Thai token ratio, where 8,192 comes from, default system prompt). Exposed Gemini key deleted (user confirmed); open: is the `.env` key in a project without billing? Next: M2 (embeddings by hand). |
