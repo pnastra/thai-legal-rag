@@ -58,7 +58,7 @@ Embeddings and vector search, BM25 and Thai tokenisation, rerankers, prompting f
 | GitHub account (github.com/pnastra) | ✅ |
 | Mac RAM (decides which local LLM size fits) | ✅ M1 Pro, 16 GB → 7–9B at 4-bit |
 | **Ollama** for local LLMs | ✅ 0.40.5 via `/opt/homebrew` (native arm64), runs as a brew service; Typhoon2-8B 100 % GPU |
-| Hosted LLM API key for the deployed demo (Gemini, free tier) | ⚠️ in `.env`; intended to sit in a Google project **without billing**, but a key in a billed project still exists: confirm which one is in `.env` before any large run |
+| Hosted LLM API key for the deployed demo (Gemini, free tier) | ✅ in `.env`; key is on the **free tier** (user confirmed 24 Nov) |
 | Hosted LLM API key for the judge (Anthropic, Claude Haiku 5.5, budget $3–5) | ⬜ M0 (needed by M7) |
 | Google Cloud project with **$1 budget alert** | ✅ from fruit project (reuse) |
 | Kaggle/Colab GPU | Only if embedding the corpus on CPU/MPS is too slow (M3) |
@@ -383,4 +383,4 @@ Claude Code adds 2–4 lines at the end of every session: date, milestone, what 
 | 2026-11-03 | M0 | Note: M0 spanned sessions 16 Oct → 3 Nov; ship date 5 Nov is no longer realistic — new dates to be agreed before M1. Next: M1 (data + evaluation splits, 🧠). |
 | 2026-11-23 | — | Re-planned: max 4 h/day, ship Fri 4 Dec (schedule under Timebox, decision in §12). M1 start moved to Tue 24 Nov → every slot shifts +1 day (CP1 Fri 27, CP2 Mon 30), 1 buffer day left (Fri 4 Dec). Next: M1 — load WangchanX, check NitiBench corpus + license, 🧠 evaluation design. |
 | 2026-11-24 | M1 | `data.py` (pinned versions), `01_explore.ipynb`, `splits.py`. **Corpus:** 36 laws, 5,127 sections, all 39,334 labels join by ID (the dataset's own `unique_key` would have missed 4% of test labels). **License:** both HF datasets MIT; NitiBench GitHub repo unlicensed → not redistributed. **Splits:** dev 500 (50 LLM), test 1,000 (300 LLM), 21 laws, no shared question or section (tested). |
-| 2026-11-24 | M1 | Findings: median section 90 tokens, max 1,685; train has 72 rows without labels and 29% with several. Banking, Energy, Petroleum and Energy Conservation dev questions exist only in train's first 837 rows. Corrected three M0 claims (Thai token ratio, where 8,192 comes from, default system prompt). Exposed Gemini key deleted (user confirmed); open: is the `.env` key in a project without billing? Next: M2 (embeddings by hand). |
+| 2026-11-24 | M1 | Findings: median section 90 tokens, max 1,685; train has 72 rows without labels and 29% with several. Banking, Energy, Petroleum and Energy Conservation dev questions exist only in train's first 837 rows. Corrected three M0 claims (Thai token ratio, where 8,192 comes from, default system prompt). User confirmed: exposed Gemini key deleted, current key on the free tier. Next: M2 (embeddings by hand). |

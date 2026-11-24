@@ -27,3 +27,7 @@ Run: `make data`, `make splits`, `make check`.
 - **IDs must join.** The dataset's own key spells `12 ทวิ` as `12_2`; using it would have counted correct retrievals as wrong.
 - **Grouped split:** dev and test share no question, no near-copy and no law section.
 - **Sample size:** margin of error shrinks with √n, so 4× the questions halves it.
+
+### End-of-M1 questions
+1. *Why must dev and test share no law section, as well as no question?* So that test stays unseen and unbiased. Two differently worded questions can have the same answer section, so anything tuned on that section in dev (a prompt, a chunk, a threshold) would already fit the test question.
+2. *BGE-M3 beats BM25 on dev; why might the gap shrink on test?* Most dev labels were picked from BGE-M3's own search results, which favours BGE-M3. Test labels come from legal experts.
