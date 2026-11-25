@@ -19,3 +19,8 @@ GenAI terms, added the first time they appear in the project.
 | **Near-duplicate** | A question that is almost the same text as another one; kept out of dev if it resembles a test question. | M1 |
 | **hit@k** | Share of questions whose correct section appears in the top k results (worked example in M4). | M1 |
 | **MRR (mean reciprocal rank)** | Average of 1/rank of the correct section: 1 if first, 0.5 if second, 0 if not found (worked example in M4). | M1 |
+| **Embedding** | A list of numbers (a vector) representing a text, so that texts with similar meaning get similar vectors. BGE-M3 gives 1,024 numbers. | M2 |
+| **Cosine similarity** | How closely two vectors point the same way (1 = same direction, 0 = unrelated); for vectors of length 1 it is the dot product. | M2 |
+| **Nearest-neighbour search** | Rank all stored vectors by similarity to the question's vector and return the top k. | M2 |
+| **BGE-M3** | The multilingual open embedding model we use (MIT license, reads up to 8,192 tokens). | M2 |
+| **Word tokeniser (Thai)** | Splits Thai text into words, which Thai writing does not separate with spaces; we use pythainlp (`newmm`). Not the same as an LLM's tokens. | M2 |

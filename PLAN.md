@@ -172,9 +172,9 @@ Twelve milestones (M0–M11): about 18 h in week 1, 18 h in week 2, 10 h in the 
 **Done when:** the corpus size, license status and splits are recorded, and a test checks that no question ID is in both dev and test.
 
 #### M2 — Embeddings and search by hand (≈3 h)
-- [ ] **Learn:** what an embedding is (a vector where similar meanings are close), cosine similarity, why "nearest neighbour" = search
-- [ ] `notebooks/02_embeddings_by_hand.ipynb`: embed ~200 law sections and 10 dev questions with BGE-M3; compute cosine similarity with NumPy; show the top-3 sections per question; check whether the correct section appears
-- [ ] Compare with keyword search on the same 10 questions using a naive split-on-spaces approach, and see why it fails for Thai (no spaces between words)
+- [x] **Learn:** what an embedding is (a vector where similar meanings are close), cosine similarity, why "nearest neighbour" = search
+- [x] `notebooks/02_embeddings_by_hand.ipynb`: embed ~200 law sections and 10 dev questions with BGE-M3; compute cosine similarity with NumPy; show the top-3 sections per question; check whether the correct section appears
+- [x] Compare with keyword search on the same 10 questions using a naive split-on-spaces approach, and see why it fails for Thai (no spaces between words)
 
 **Done when:** I can explain in my own words (in `docs/learning-notes.md`) what the notebook did and why Thai needs a word tokeniser.
 
