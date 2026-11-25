@@ -135,6 +135,7 @@ thai-legal-rag/
 │   ├── splits.py           # choose the fixed dev/test questions
 │   ├── chunk.py            # chunking strategies
 │   ├── tokenize_th.py      # Thai word tokenisation for BM25
+│   ├── index.py            # embed the corpus once, save/load vectors
 │   ├── retrieve.py         # BM25, dense (BGE-M3), hybrid
 │   ├── rerank.py           # cross-encoder reranker
 │   ├── llm.py              # one interface for Ollama + hosted provider
@@ -179,10 +180,10 @@ Twelve milestones (M0–M11): about 18 h in week 1, 18 h in week 2, 10 h in the 
 **Done when:** I can explain in my own words (in `docs/learning-notes.md`) what the notebook did and why Thai needs a word tokeniser.
 
 #### M3 — Chunking and indexing the corpus (≈3.5 h) 🧠
-- [ ] **🧠 Brainstorm — chunking:** one chunk per law section (structure-aware) vs fixed-size chunks with overlap vs splitting long sections; how to keep metadata (law name, section number) for citations
-- [ ] **🧠 Brainstorm — vector store:** NumPy matrix + brute force (fine at this size?) vs Chroma vs Qdrant; what each teaches and when you'd need a real vector DB
-- [ ] `chunk.py`, `tokenize_th.py` (pythainlp), indexing script: embed the full corpus once, save embeddings + metadata to `data/index/` (gitignored)
-- [ ] Test: every chunk has a law name and section ID; no empty chunks
+- [x] **🧠 Brainstorm — chunking:** one chunk per law section (structure-aware) vs fixed-size chunks with overlap vs splitting long sections; how to keep metadata (law name, section number) for citations
+- [x] **🧠 Brainstorm — vector store:** NumPy matrix + brute force (fine at this size?) vs Chroma vs Qdrant; what each teaches and when you'd need a real vector DB
+- [x] `chunk.py`, `tokenize_th.py` (pythainlp), indexing script: embed the full corpus once, save embeddings + metadata to `data/index/` (gitignored)
+- [x] Test: every chunk has a law name and section ID; no empty chunks
 
 **Done when:** `make index` builds the index reproducibly and its size/time are recorded in §13.
 
@@ -370,6 +371,9 @@ gcp-*.json
 | 2026-11-24 | M1 | Search the full corpus (36 laws, 5,127 sections) | Only the 21 laws with test questions | Leaving laws out would make retrieval artificially easy |
 | 2026-11-24 | M1 | Headline metrics: hit@5 and MRR@10 (plus MRR@5 to compare with the paper); citation precision/recall and coverage for answers | More k values, judge-only scoring | One correct section per question; citations are exact and need no judge |
 | 2026-11-24 | M1 | Test exclusions: 11 rows not in NitiBench-CCL, 4 more copies of repeated questions, and row 0 (seen while exploring) → 3,726 eligible; dev and test share no section | Keep one copy of each repeat | Some repeats have different correct sections, so their label is ambiguous |
+| 2026-11-25 | M3 | Chunking: one chunk per section (main index), plus "split sections over 512 tokens" as an M4 experiment; skip it if behind at CP1 | Section only; split long only; both; fixed size with overlap | Sections give exact citations; splitting affects only 56 sections (14 of 500 dev questions, max +2.8 pts hit@5), so measure it and don't assume |
+| 2026-11-25 | M3 | Split rule: cut at line breaks, repeat law name + มาตรา, a section's score = its best part, LLM still gets the whole section | — | Citations and context stay intact |
+| 2026-11-25 | M3 | Vector store: NumPy files, brute-force search | Chroma, Qdrant | ~5,200 vectors (21 MB) is one small matrix product |
 
 ---
 
@@ -385,3 +389,4 @@ Claude Code adds 2–4 lines at the end of every session: date, milestone, what 
 | 2026-11-24 | M1 | `data.py` (pinned versions), `01_explore.ipynb`, `splits.py`. **Corpus:** 36 laws, 5,127 sections, all 39,334 labels join by ID (the dataset's own `unique_key` would have missed 4% of test labels). **License:** both HF datasets MIT; NitiBench GitHub repo unlicensed → not redistributed. **Splits:** dev 500 (50 LLM), test 1,000 (300 LLM), 21 laws, no shared question or section (tested). |
 | 2026-11-24 | M1 | Findings: median section 90 tokens, max 1,685; train has 72 rows without labels and 29% with several. Banking, Energy, Petroleum and Energy Conservation dev questions exist only in train's first 837 rows. Corrected three M0 claims (Thai token ratio, where 8,192 comes from, default system prompt). User confirmed: exposed Gemini key deleted, current key on the free tier. Next: M2 (embeddings by hand). |
 | 2026-11-25 | M2 | `02_embeddings_by_hand.ipynb`: 10 dev questions × 200 sections; correct section first in 1/10 (split on spaces), 5/10 (pythainlp words), 10/10 (BGE-M3); a toy, not a result. Keyword misses come from longer sections, common words and different wording. For M3: section texts already start with the law name; 2 dev questions contain zero-width spaces. Added pythainlp; email removed from `pyproject.toml`. Next: M3 (chunking + index, 🧠). |
+| 2026-11-25 | M3 | `chunk.py`, `tokenize_th.py`, `index.py`, `make index`. **Index:** `section` 5,127 chunks (27 MB on disk, 21.0 MB vectors), `split512` 5,203 chunks (28 MB); 56 sections → 132 parts. **Time:** 210 s to embed 5,259 distinct texts on MPS; two builds bit-identical. `make data` no longer needs GitHub's API once downloaded (it returned 504). 22 tests pass. Next: M4 (retrievers + dev evaluation, 🧠; CP1 Fri 27). |

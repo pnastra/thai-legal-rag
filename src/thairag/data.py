@@ -46,9 +46,9 @@ def download(raw: Path = RAW) -> None:
         for split in ("train", "test"):
             _download(client, WANGCHANX_URL.format(split=split), raw / "wangchanx" / f"{split}.parquet")
         _download(client, CCL_URL, raw / "nitibench_ccl" / "ccl.parquet")
-        tree = client.get(LAW_TREE_URL)
-        tree.raise_for_status()
-        for item in tree.json()["tree"]:
+        tree = raw / "nitibench_tree.json"
+        _download(client, LAW_TREE_URL, tree)  # saved, so later runs don't need GitHub's API
+        for item in json.loads(tree.read_text())["tree"]:
             p = item["path"]
             if p.startswith("test_data/laws/") and p.endswith(".json"):
                 _download(client, LAW_RAW_URL + quote(p), raw / "nitibench_laws" / Path(p).name)

@@ -24,3 +24,6 @@ GenAI terms, added the first time they appear in the project.
 | **Nearest-neighbour search** | Rank all stored vectors by similarity to the question's vector and return the top k. | M2 |
 | **BGE-M3** | The multilingual open embedding model we use (MIT license, reads up to 8,192 tokens). | M2 |
 | **Word tokeniser (Thai)** | Splits Thai text into words, which Thai writing does not separate with spaces; we use pythainlp (`newmm`). Not the same as an LLM's tokens. | M2 |
+| **Chunk** | The piece of text that gets one vector and is returned by search; here one law section (or part of a long one). | M3 |
+| **Vector index / vector store** | The saved vectors plus metadata that search runs on. Ours is a NumPy file; a vector database adds fast approximate search, updates and filters at large scale. | M3 |
+| **Brute-force search** | Compare the question with every vector (exact); fine for thousands, slow for many millions. | M3 |
