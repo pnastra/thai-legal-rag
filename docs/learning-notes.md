@@ -54,3 +54,7 @@ Run: `make index` (about 4 minutes, builds `data/index/`).
 - **A long chunk blurs:** one vector must summarise everything in it. **A short chunk loses context:** "(3) ten years" means little without its opening sentence.
 - **Law sections are natural chunks:** median 90 tokens, and each is exactly what we cite.
 - **Estimate the possible gain first:** only 14 of 500 dev questions have a split section as the answer, so splitting can add at most 2.8 points to hit@5.
+
+### End-of-M3 questions
+1. *Why might one vector represent a 1,685-token definitions section poorly?* My answer: it has to be embedded to a vector smaller than its tokens (1,685 → 1,024), plus it carries many unrelated definitions. *(The second reason is right. The first is not: 1,024 is the number of dimensions, not a token limit; a 15-token and a 1,685-token text both get 1,024 numbers. The problem is one point standing for many topics.)*
+2. *Why is a 4-part section with 4 chances a problem, and does best-part scoring solve it?* My answer: one true section could appear up to 4 times; taking the best score gives a distinct predicted section, whether it is correct or not. *(Right about duplicates. Not complete: the maximum of 4 scores tends to be higher than 1 score, so long sections still have an advantage.)*
