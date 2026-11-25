@@ -31,3 +31,14 @@ Run: `make data`, `make splits`, `make check`.
 ### End-of-M1 questions
 1. *Why must dev and test share no law section, as well as no question?* So that test stays unseen and unbiased. Two differently worded questions can have the same answer section, so anything tuned on that section in dev (a prompt, a chunk, a threshold) would already fit the test question.
 2. *BGE-M3 beats BM25 on dev; why might the gap shrink on test?* Most dev labels were picked from BGE-M3's own search results, which favours BGE-M3. Test labels come from legal experts.
+
+## M2 — Embeddings and search by hand
+
+Run: `make data`, then `uv run jupyter nbconvert --to notebook --execute --inplace notebooks/02_embeddings_by_hand.ipynb`
+
+### In my own words
+- **What the notebook did:** Load then sampling 10 questions from train. Draws 200 distractors from the same laws with the samples. Embed them to vector space via BGE-M3 then sort each possible pair by cosine similarity. *(Correction: 200 sections in total = the 10 correct ones + 190 distractors; and the sorting is done separately for each question, not over all pairs together. The questions are the dev split, which comes from train.)*
+- **Why Thai needs a word tokeniser:** Because Thai text does not split by space like English. It need vocabulary from Thai dictionary.
+
+### Results of the toy search (10 questions, 200 sections; not a benchmark)
+Correct section ranked first: split on spaces 1/10, Thai tokeniser 5/10, BGE-M3 10/10.

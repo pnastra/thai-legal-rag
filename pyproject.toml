@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Thai legal RAG with citations, evaluated on NitiBench"
 readme = "README.md"
 authors = [
-    { name = "pnastra", email = "pnastranagant@gmail.com" }
+    { name = "pnastra" }
 ]
 requires-python = ">=3.12"
 dependencies = [
