@@ -42,3 +42,7 @@ Run: `make data`, then `uv run jupyter nbconvert --to notebook --execute --inpla
 
 ### Results of the toy search (10 questions, 200 sections; not a benchmark)
 Correct section ranked first: split on spaces 1/10, Thai tokeniser 5/10, BGE-M3 10/10.
+
+### End-of-M2 questions
+1. *"Show a section only if its similarity is above 0.6": what's the problem?* My answer: without the law and/or text, a wrong answer may be shown and can't be rechecked. *(That is a good point about citations, but not the main problem here: scores are only comparable within one question. In the notebook a correct section scored 0.58 and would be hidden, while a wrong one scored 0.68 and would be shown. Use the top k; tune any cutoff on dev.)*
+2. *Why did keywords rank the correct section 74th and embeddings 1st for ใครที่สามารถทำอาชีพผู้ทำบัญชีได้?* Explained by Claude: the law says ผู้ใด and วิชาชีพ, the question says ใคร and อาชีพ. Keywords need the same words; embeddings can match similar meanings.
