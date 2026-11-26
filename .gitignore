@@ -32,3 +32,6 @@ gcp-*.json
 # macOS / editors
 .DS_Store
 .vscode/
+
+# Per-question outputs (contain dataset text)
+reports/dev_ranks.csv
