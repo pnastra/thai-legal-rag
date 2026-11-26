@@ -188,10 +188,10 @@ Twelve milestones (M0–M11): about 18 h in week 1, 18 h in week 2, 10 h in the 
 **Done when:** `make index` builds the index reproducibly and its size/time are recorded in §13.
 
 #### M4 — Retrieval baselines and evaluation (≈4.5 h) 🧠
-- [ ] **Learn:** BM25 (TF-IDF's smarter cousin), dense vs sparse retrieval, hybrid search, and the metrics hit@k, recall@k, MRR (explained with a small worked example)
-- [ ] **🧠 Brainstorm — retrievers to compare:** BM25 (with pythainlp tokens) vs dense BGE-M3 vs hybrid (how to combine scores: reciprocal rank fusion vs weighted sum); which k values to report
-- [ ] `retrieve.py`, `eval_retrieval.py`; run all retrievers on **dev**; log each as an MLflow run
-- [ ] Error analysis: read 10 dev questions where the correct section is not in the top 10. Why? (paraphrase, cross-references, very short sections…)
+- [x] **Learn:** BM25 (TF-IDF's smarter cousin), dense vs sparse retrieval, hybrid search, and the metrics hit@k, recall@k, MRR (explained with a small worked example)
+- [x] **🧠 Brainstorm — retrievers to compare:** BM25 (with pythainlp tokens) vs dense BGE-M3 vs hybrid (how to combine scores: reciprocal rank fusion vs weighted sum); which k values to report
+- [x] `retrieve.py`, `eval_retrieval.py`; run all retrievers on **dev**; log each as an MLflow run
+- [x] Error analysis: read 10 dev questions where the correct section is not in the top 10. Why? (paraphrase, cross-references, very short sections…)
 
 **Done when:** a dev results table (retriever × hit@1/5/10, MRR@10) is in MLflow and §13, and the error notes are in `docs/learning-notes.md`.
 
@@ -393,3 +393,4 @@ Claude Code adds 2–4 lines at the end of every session: date, milestone, what 
 | 2026-11-25 | M2 | `02_embeddings_by_hand.ipynb`: 10 dev questions × 200 sections; correct section first in 1/10 (split on spaces), 5/10 (pythainlp words), 10/10 (BGE-M3); a toy, not a result. Keyword misses come from longer sections, common words and different wording. For M3: section texts already start with the law name; 2 dev questions contain zero-width spaces. Added pythainlp; email removed from `pyproject.toml`. Next: M3 (chunking + index, 🧠). |
 | 2026-11-25 | M3 | `chunk.py`, `tokenize_th.py`, `index.py`, `make index`. **Index:** `section` 5,127 chunks (27 MB on disk, 21.0 MB vectors), `split512` 5,203 chunks (28 MB); 56 sections → 132 parts. **Time:** 210 s to embed 5,259 distinct texts on MPS; two builds bit-identical. `make data` no longer needs GitHub's API once downloaded (it returned 504). 22 tests pass. Check questions answered; M3 closed. Next: M4 (retrievers + dev evaluation, 🧠; CP1 Fri 27). |
 | 2026-11-26 | M4 | `retrieve.py`, `eval_retrieval.py`, `make eval-retrieval` (≈30 s once the index exists); 4 MLflow runs; tables in `reports/`. **Dev (500):** hit@5 / MRR@10: BM25 0.652 / 0.534, dense 0.806 / 0.684, dense split512 0.804 / 0.682, hybrid RRF 0.774 / 0.668. Dense beats BM25 in every subgroup (by 10–19 pts hit@5), including the 112 test-like questions (0.830 vs 0.732). Splitting long sections changes nothing (−0.2 pts, CI includes 0). |
+| 2026-11-26 | M4 | Error analysis (10 dense misses): 3 confirmed label errors (answers quote today's content under old CCC section numbers, likely pre-1992 numbering), 1 doubtful, 2 cross-references, 3 similar/unnamed law, 1 vague → dev scores slightly pessimistic; labels not edited. Glossary +5 terms. **CP1 met a day early.** Pipeline candidate for M5: dense `section`. Next: M5 (reranker, 🧠). |

@@ -27,3 +27,8 @@ GenAI terms, added the first time they appear in the project.
 | **Chunk** | The piece of text that gets one vector and is returned by search; here one law section (or part of a long one). | M3 |
 | **Vector index / vector store** | The saved vectors plus metadata that search runs on. Ours is a NumPy file; a vector database adds fast approximate search, updates and filters at large scale. | M3 |
 | **Brute-force search** | Compare the question with every vector (exact); fine for thousands, slow for many millions. | M3 |
+| **BM25** | Keyword ranking: rewards question words that are rare in the corpus (IDF), lets repeats saturate (k1) and penalises long texts (b). TF-IDF's smarter cousin. | M4 |
+| **Sparse vs dense retrieval** | Sparse matches words (BM25; a vector with one slot per word, mostly zeros); dense matches meaning (embeddings, every slot used). | M4 |
+| **Hybrid search / RRF** | Combine several rankings. Reciprocal rank fusion adds 1/(60 + rank) from each list, so only ranks matter, not score scales. | M4 |
+| **hit@k / MRR@k** | hit@k: share of questions with the correct section in the top k. MRR@k: mean of 1/rank (0 if below k), so higher placement counts more. | M4 |
+| **Bootstrap interval / paired comparison** | Resample questions with replacement to get a 95% interval; for two retrievers, resample the per-question differences, which gives a much tighter interval. | M4 |

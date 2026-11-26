@@ -58,3 +58,36 @@ Run: `make index` (about 4 minutes, builds `data/index/`).
 ### End-of-M3 questions
 1. *Why might one vector represent a 1,685-token definitions section poorly?* My answer: it has to be embedded to a vector smaller than its tokens (1,685 → 1,024), plus it carries many unrelated definitions. *(The second reason is right. The first is not: 1,024 is the number of dimensions, not a token limit; a 15-token and a 1,685-token text both get 1,024 numbers. The problem is one point standing for many topics.)*
 2. *Why is a 4-part section with 4 chances a problem, and does best-part scoring solve it?* My answer: one true section could appear up to 4 times; taking the best score gives a distinct predicted section, whether it is correct or not. *(Right about duplicates. Not complete: the maximum of 4 scores tends to be higher than 1 score, so long sections still have an advantage.)*
+
+## M4 — Retrieval baselines on dev
+
+Run: `make eval-retrieval` (≈30 s once the index exists). Runs: `uv run mlflow ui --backend-store-uri sqlite:///mlflow.db`, experiment `m4-retrieval-dev`.
+
+- **BM25** scores word overlap (rare words count more, repeats saturate, long sections are penalised); **dense** compares meaning vectors; **hybrid RRF** adds 1/(60 + rank) from each list.
+- **Dev (500), hit@5 / MRR@10:** BM25 0.652 / 0.534, dense 0.806 / 0.684, split512 0.804 / 0.682, RRF 0.774 / 0.668.
+- **Paired comparisons** (same questions, bootstrap the differences) are much tighter than comparing two separate intervals: split512 − section = −0.002 (−0.010 to 0.004).
+- **Hybrid lost to dense** (−3.2 pts hit@5): dense alone had the answer in its top 5 and RRF did not for 37 questions, against 21 the other way.
+
+### Error analysis: 10 random dev questions where dense missed the top 10 (seed 42)
+
+| Question | Rank dense / BM25 / RRF | Cause |
+|---|---|---|
+| train-07347 foundation dissolution | >100 / >100 / >100 | **Label wrong** (checked by me): label 93 is about association meetings; the answer's content is today's 131, which dense found first |
+| train-08157 owner of ส่วนควบ | >100 / >100 / >100 | **Label wrong** (checked): label 107; answer's content is today's 144, dense's #1 |
+| train-07522 who can ask for the absentee property report | 22 / >100 / 51 | **Label wrong** (checked): label 60 only says "apply agency rules"; answer's content is today's 56, dense's #1 |
+| train-07803 who cares for an incompetent person | >100 / 33 / 63 | Label doubtful (30 is about acts of an insane person); dense's #1 (430, tort liability) is also wrong |
+| train-00453 specific business tax reports | >100 / 6 / 31 | Cross-reference: label 91/21 only lists sections to apply; dense found the content (87/3) |
+| train-00018 shareholder over 15% | >100 / 86 / >100 | Cross-reference: Banking Act 22 points to 16–19; law not named |
+| train-04712 liquidator, บริษัทจำกัด | 51 / 4 / 11 | Similar law: dense picked the Public Companies Act twin rule; BM25 matched the exact words |
+| train-03240 secret-ballot exceptions | 21 / 1 / 6 | Law not named: dense picked the CCC rule, the label is the Public Companies Act |
+| train-00171 who is the auditor | 19 / 71 / 17 | Law not named; term in several laws |
+| train-07315 when is tax payment complete | 12 / >100 / 50 | Short, vague question |
+
+**Takeaways**
+- **3 of 10 misses are label errors**, maybe 4. In each, the stored answer quotes the right content but an old section number. Hypothesis (agreed, not verified): some train rows cite the Civil and Commercial Code's numbering before Book 1 was revised in 1992, and the label was matched by number to today's law. So dev scores are slightly pessimistic. Labels are not edited; test labels are expert-written.
+- **Cross-references** (2): the labelled section only points to others. Following references is a stretch item.
+- **Similar law / law not named** (3): this is where BM25 sometimes wins. RRF didn't help on average, but this is its niche.
+
+### End-of-M4 questions
+1. *Why can MRR@10 differ between two retrievers with the same hit@10?* My answer: hit@k only checks rank ≤ k; MRR also accounts for the rank. ✅
+2. *Hybrid is usually better; why might it lose to dense here?* My answer: BGE-M3 is pre-trained and better than typical dense embedders. *(Only part of it. RRF is an equal-weight vote: when one voter (BM25, 0.65) is much weaker than the other (dense, 0.81), it pulls more right answers down than it lifts. Hybrid helps when both parts are about equally good and make different mistakes. Dev labels partly picked with BGE-M3 also tilt dev towards dense.)*
